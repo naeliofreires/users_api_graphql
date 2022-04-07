@@ -3,6 +3,8 @@ const {
   GraphQLString,
   GraphQLSchema,
   GraphQLList,
+  GraphQLInt,
+  GraphQLNonNull,
 } = require("graphql");
 const api = require("./api");
 const UserType = require("./types/UserType");
@@ -36,6 +38,23 @@ const CompanyRootQuery = {
   },
 };
 
+const mutation = new GraphQLObjectType({
+  name: "Mutation",
+  fields: {
+    addUser: {
+      type: UserType,
+      args: {
+        firstName: { type: new GraphQLNonNull(GraphQLString) },
+        age: { type: new GraphQLNonNull(GraphQLInt) },
+        companyId: { type: GraphQLString },
+      },
+      resolve(_, args) {
+        return api.post("/users", { ...args }).then((res) => res.data);
+      },
+    },
+  },
+});
+
 const RootQuery = new GraphQLObjectType({
   name: "RootQueryType",
   fields: {
@@ -44,4 +63,4 @@ const RootQuery = new GraphQLObjectType({
   },
 });
 
-module.exports = new GraphQLSchema({ query: RootQuery });
+module.exports = new GraphQLSchema({ query: RootQuery, mutation });
